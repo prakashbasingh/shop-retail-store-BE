@@ -61,7 +61,7 @@ router.post("/login", (req, res) => {
   const { email, password } = req.body;
 
   if (isValid(req.body)) {
-    Admin.findAllAdmin({ email }).then(([admin]) => {
+    Admin.findByAdmin({ email }).then(([admin]) => {
       if (admin && bcryptjs.compareSync(password, admin.password)) {
         const token = makeJwt(admin);
         res.status(200).json({

@@ -3,44 +3,46 @@ const router = require("express").Router();
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const Buyers = require("./buyer-model.js");
+const Buyer = require("./auth-model-buyer.js");
 
-const { isValid } = require(".auth-service.js");
+const { isValid } = require("./auth-service.js");
 
 //Buyers End Points
 
 // GET all Buyers
-router.post("/admin", (req, res) => {
-    Buyers.findAllBuyers()
-    .then(admin => {
-        res.status(200).json(admin)
+router.get("/", (req, res) => {
+  Buyer.findAllBuyer()
+    .then((buyer) => {
+      console.log(buyer, "BUYER BUYER BUYER");
+      res.status(200).json(buyer);
     })
-    .catch(error => {
-        res.status(500).json({ message: " admin data can not be retrieved"})
-    })
-}
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({ message: " buyer's data can not be retrieved" });
+    });
+});
 
 // 1) Buyers Register
-router.post("/buyer/register", (req, res) => {
+router.post("/register", (req, res) => {
   const credentials = req.body;
 
   if (isValid(credentials)) {
     const rounds = process.env.BCRYPT_ROUNDS || 8;
 
     // here hashing  the password
-    const hash = bcryptjs.hashSync(credentials.password, rounds);
+    const hash = bcryptjs.hashSync(credentials.password, 8);
     credentials.password = hash;
 
-    // and here saving the user to the database
-    Buyers.addBuyer(credentials)
-      .then((user) => {
-        const token = makeJwt(user);
+    // and here saving the buyer to the database
+    Buyer.addBuyer(credentials)
+      .then((buyer) => {
+        const token = makeJwt(buyer);
         res.status(201).json({
-          data: user,
+          data: buyer,
           token,
-          admin_id: user.id,
-          email: user.email,
-          admin: true,
+          buyerId: buyer.id,
+          email: buyer.email,
+          admin: false,
         });
       })
       .catch((error) => {
@@ -54,19 +56,22 @@ router.post("/buyer/register", (req, res) => {
 });
 
 // 2) Buyers Login
-router.post("/buyer/login", (req, res) => {
+router.post("/login", (req, res) => {
   const { email, password } = req.body;
 
   if (isValid(req.body)) {
-    Buyers.findBuyer({ email }).then(([user]) => {
-      if (user && bcryptjs.compareSync(password, user.password)) {
-        const token = makeJwt(user);
+    Buyer.findByBuyer({ email }).then(([buyer]) => {
+      console.log(buyer, "BUYER");
+
+      if (buyer && bcryptjs.compareSync(password, buyer.password)) {
+        const token = makeJwt(buyer);
+
         res.status(200).json({
           message: `Welcome ${email}`,
           token,
-          adminId: user.id,
-          email: user.email,
-          admin: true,
+          buyerId: buyer.id,
+          email: buyer.email,
+          admin: false,
         });
       } else {
         res.status(401).json({ message: "invalid Credentials" });
@@ -79,10 +84,10 @@ router.post("/buyer/login", (req, res) => {
   }
 });
 
-function makeJwt(user) {
+function makeJwt(buyer) {
   const payload = {
-    subject: user.id,
-    email: user.email,
+    subject: buyer.id,
+    email: buyer.email,
   };
   const secret = process.env.JWT_secret || "supersecret";
   const options = {

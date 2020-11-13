@@ -2,8 +2,8 @@ module.exports = {
   isValid,
 };
 
-function isValid(admin) {
+function isValid(user) {
   return Boolean(
-    admin.email && admin.password && typeof admin.password === "string"
+    user.email && user.password && typeof user.password === "string"
   );
 }

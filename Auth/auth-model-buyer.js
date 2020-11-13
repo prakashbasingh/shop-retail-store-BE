@@ -2,15 +2,19 @@ const db = require("../data/db-config.js");
 
 module.exports = {
   findAllBuyer,
+  findByBuyer,
   addBuyer,
   findBuyerById,
 };
 
-function findAllBuyer) {
+function findAllBuyer() {
   return db("buyer");
 }
+function findByBuyer(filter) {
+  return db("buyer").where(filter);
+}
 
-function addBuyerBuyer {
+function addBuyer(buyer) {
   return db("buyer")
     .insert(buyer, "id")
     .then((ids) => {

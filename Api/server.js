@@ -4,6 +4,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 
 const authRouterAdmin = require("../Auth/auth-router-admin.js");
+const authRouterBuyer = require("../Auth/auth-router-buyer.js");
 
 const authenticate = require("../auth/authenticate-middleware.js");
 
@@ -15,6 +16,7 @@ server.use(cors());
 server.use(express.json());
 
 server.use("/api/admin", authRouterAdmin);
+server.use("/api/buyer", authRouterBuyer);
 
 server.get("/", (req, res) => {
   res.json({

@@ -2,12 +2,16 @@ const db = require("../data/db-config.js");
 
 module.exports = {
   findAllAdmin,
+  findByAdmin,
   addAdmin,
   findAdminById,
 };
 
 function findAllAdmin() {
   return db("administrator");
+}
+function findByAdmin(filter) {
+  return db("administrator").where(filter);
 }
 
 function addAdmin(admin) {
